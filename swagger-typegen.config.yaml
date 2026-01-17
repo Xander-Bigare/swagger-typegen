@@ -1,0 +1,28 @@
+version: 1
+allowV2Conversion: true
+
+output:
+  dir: ./ouput/
+  perSpecFileName: "{specId}.types.ts"
+  mergedFileName: "api-types.ts"
+
+mode:
+  mergeOutput: true
+
+features:
+  pruneUnusedSchemas: true
+
+specs:
+  - id: billing
+    input: ./swaggers/billing.json
+    routes:
+      include:
+        - path: "/invoices/**"
+          methods: [GET, POST]
+        - path: "/payments"
+
+  # - id: identity
+  #   input: ./swaggers/identity/   # folder => all yaml/yml/json
+  #   routes:
+  #     exclude:
+  #       # - path: "/users/*/private"

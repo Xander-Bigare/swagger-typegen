@@ -1,0 +1,120 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Billing API",
+    "version": "1.0.0"
+  },
+  "servers": [{ "url": "https://billing.example.com" }],
+  "paths": {
+    "/invoices": {
+      "get": {
+        "operationId": "listInvoices",
+        "tags": ["billing"],
+        "responses": {
+          "200": {
+            "description": "A list of invoices",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Invoice" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/invoices/{id}": {
+      "get": {
+        "operationId": "getInvoiceById",
+        "tags": ["billing"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invoice details",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Invoice" }
+              }
+            }
+          },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/payments": {
+      "post": {
+        "operationId": "createPayment",
+        "tags": ["billing"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreatePaymentRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created payment",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Payment" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Invoice": {
+        "type": "object",
+        "required": ["id", "amountCents", "currency", "user"],
+        "properties": {
+          "id": { "type": "string", "example": "inv_001" },
+          "amountCents": { "type": "integer", "example": 1999 },
+          "currency": { "type": "string", "example": "EUR" },
+          "user": { "$ref": "#/components/schemas/User" }
+        }
+      },
+
+      "Payment": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "type": "string", "example": "pay_001" },
+          "status": { "type": "string", "enum": ["pending", "succeeded", "failed"] }
+        }
+      },
+
+      "CreatePaymentRequest": {
+        "type": "object",
+        "required": ["invoiceId", "method"],
+        "properties": {
+          "invoiceId": { "type": "string" },
+          "method": { "type": "string", "enum": ["card", "bank_transfer"] }
+        }
+      },
+
+      "User": {
+        "type": "object",
+        "required": ["id", "email"],
+        "properties": {
+          "id": { "type": "string", "example": "u_123" },
+          "email": { "type": "string", "format": "email", "example": "a@b.com" },
+          "displayName": { "type": "string", "example": "Alice"}
+        }
+      }
+    }
+  }
+}

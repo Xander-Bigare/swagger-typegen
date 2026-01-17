@@ -1,0 +1,32 @@
+{
+  "name": "swagger-typegen",
+  "version": "0.1.0",
+  "description": "Generate TypeScript types from OpenAPI (Swagger) specs with filtering and merge mode",
+  "license": "MIT",
+  "main": "dist/main.js",
+  "bin": {
+    "swagger-typegen": "dist/cli/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/postbuild.js",
+    "dev": "node dist/cli/index.js generate --config ./swagger-typegen.config.yaml",
+    "generate": "node dist/cli/index.js generate"
+  },
+  "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2",
+    "micromatch": "^4.0.8",
+    "prettier": "^3.3.3",
+    "swagger2openapi": "^7.0.8",
+    "yaml": "^2.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

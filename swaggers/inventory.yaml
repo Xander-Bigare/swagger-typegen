@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: Inventory API
+  version: 1.0.0
+servers:
+  - url: https://inventory.example.com
+
+paths:
+  /products:
+    get:
+      operationId: listProducts
+      tags: [inventory]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{sku}:
+    get:
+      operationId: getProductBySku
+      tags: [inventory]
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+
+  /products/{sku}/reserve:
+    post:
+      operationId: reserveProduct
+      tags: [inventory, internal]
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReserveRequest"
+      responses:
+        "200":
+          description: Reserved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reservation"
+
+components:
+  schemas:
+    Product:
+      type: object
+      required: [sku, name, owner]
+      properties:
+        sku:
+          type: string
+          example: "SKU-001"
+        name:
+          type: string
+          example: "Widget"
+        owner:
+          $ref: "#/components/schemas/User"
+
+    ReserveRequest:
+      type: object
+      required: [quantity]
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          example: 2
+
+    Reservation:
+      type: object
+      required: [reservationId, sku, quantity]
+      properties:
+        reservationId:
+          type: string
+          example: "res_123"
+        sku:
+          type: string
+          example: "SKU-001"
+        quantity:
+          type: integer
+          example: 2
+
+    # Intentionally identical to users.openapi.yaml's User (id, email required; displayName optional)
+    User:
+      type: object
+      required: [id, email]
+      properties:
+        id:
+          type: string
+          example: "u_123"
+        email:
+          type: string
+          format: email
+          example: "a@b.com"
+        displayName:
+          type: string
+          example: "Ada Lovelace"

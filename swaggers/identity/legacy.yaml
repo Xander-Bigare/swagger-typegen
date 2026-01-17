@@ -1,0 +1,86 @@
+swagger: "2.0"
+info:
+  title: Legacy API (Swagger 2.0)
+  version: "1.0.0"
+host: legacy.example.com
+basePath: /v1
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /legacy/users:
+    get:
+      operationId: legacyListUsers
+      tags:
+        - legacy
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/User"
+    post:
+      operationId: legacyCreateUser
+      tags:
+        - legacy
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/CreateUserRequest"
+      responses:
+        201:
+          description: Created
+          schema:
+            $ref: "#/definitions/User"
+
+  /legacy/users/{id}:
+    get:
+      operationId: legacyGetUserById
+      tags:
+        - legacy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: Not found
+
+definitions:
+  User:
+    type: object
+    required:
+      - id
+      - email
+    properties:
+      id:
+        type: string
+        example: u_legacy_1
+      email:
+        type: string
+        example: legacy@example.com
+      displayName:
+        type: string
+        example: Legacy User
+
+  CreateUserRequest:
+    type: object
+    required:
+      - email
+    properties:
+      email:
+        type: string
+      displayName:
+        type: string

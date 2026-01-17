@@ -1,0 +1,44 @@
+# ---- OS / Editor ----
+.DS_Store
+Thumbs.db
+
+# VS Code / JetBrains
+.vscode/
+.idea/
+*.iml
+
+# ---- Logs ----
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# ---- TypeScript build output ----
+dist/
+*.tsbuildinfo
+
+# ---- Coverage / test artifacts ----
+coverage/
+.nyc_output/
+
+# ---- Runtime / cache ----
+.cache/
+.tmp/
+temp/
+*.tmp
+
+# ---- Env files ----
+.env
+.env.*
+!.env.example
+
+# ---- Optional: generated artifacts (keep root output folder tracked) ----
+# If you generate files inside ./output but want to keep the folder itself,
+# ignore its contents only:
+output/**
+!output/.gitkeep
+
+# ---- Optional: keep node_modules tracked (NOT recommended) ----
+node_modules/**
