@@ -34,11 +34,6 @@ temp/
 .env.*
 !.env.example
 
-# ---- Optional: generated artifacts (keep root output folder tracked) ----
-# If you generate files inside ./output but want to keep the folder itself,
-# ignore its contents only:
+# ---- Ignore Generated / Dependencies ----
 output/**
-!output/.gitkeep
-
-# ---- Optional: keep node_modules tracked (NOT recommended) ----
 node_modules/**

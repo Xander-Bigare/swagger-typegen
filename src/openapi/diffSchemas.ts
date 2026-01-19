@@ -10,7 +10,8 @@ export function diffSchemas(a: any, b: any, path: string = "$"): string | null {
   if (ta !== tb) return `${path}: type mismatch (${ta} vs ${tb})`;
 
   if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) return `${path}: array length mismatch (${a.length} vs ${b.length})`;
+    if (a.length !== b.length)
+      return `${path}: array length mismatch (${a.length} vs ${b.length})`;
     for (let i = 0; i < a.length; i++) {
       const d = diffSchemas(a[i], b[i], `${path}[${i}]`);
       if (d) return d;

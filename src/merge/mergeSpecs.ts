@@ -12,11 +12,16 @@ function ensureComponents(doc: any) {
   doc.components.schemas = doc.components.schemas ?? {};
 }
 
-export async function mergeSpecsAndEmit(cfg: Config, expanded: ExpandedSpecInput[]): Promise<string> {
+export async function mergeSpecsAndEmit(
+  cfg: Config,
+  expanded: ExpandedSpecInput[],
+): Promise<string> {
   // Filter + prune each spec first
   const prepared = expanded.map((s) => {
     const filtered = filterRoutes(s.document, s.routes);
-    const pruned = cfg.features.pruneUnusedSchemas ? pruneSchemas(filtered) : filtered;
+    const pruned = cfg.features.pruneUnusedSchemas
+      ? pruneSchemas(filtered)
+      : filtered;
     return { ...s, document: pruned };
   });
 
@@ -55,7 +60,7 @@ export async function mergeSpecsAndEmit(cfg: Config, expanded: ExpandedSpecInput
           `Incoming spec: ${spec.specId}`,
           `Difference: ${d}`,
           `NOTE: swagger-typegen does not rename schemas. Fix the spec(s) or disable mergeOutput.`,
-        ].join("\n")
+        ].join("\n"),
       );
     }
   }
@@ -68,7 +73,9 @@ export async function mergeSpecsAndEmit(cfg: Config, expanded: ExpandedSpecInput
 `;
 
   const mergedSchemasObj = mergedDoc?.components?.schemas ?? {};
-  const reservedSchemaNames = Object.keys(mergedSchemasObj).map((raw) => toSafeIdentifier(raw));
+  const reservedSchemaNames = Object.keys(mergedSchemasObj).map((raw) =>
+    toSafeIdentifier(raw),
+  );
 
   // top-level enum signatures in merged doc
   const schemaEnumKeyByName = new Map<string, string>();
@@ -76,7 +83,10 @@ export async function mergeSpecsAndEmit(cfg: Config, expanded: ExpandedSpecInput
     const ident = toSafeIdentifier(rawName);
     const s = mergedSchemasObj[rawName];
     if (Array.isArray(s?.enum) && s.enum.length > 0) {
-      schemaEnumKeyByName.set(ident, JSON.stringify({ values: s.enum, nullable: !!s.nullable }));
+      schemaEnumKeyByName.set(
+        ident,
+        JSON.stringify({ values: s.enum, nullable: !!s.nullable }),
+      );
     }
   }
 
@@ -99,7 +109,7 @@ export async function mergeSpecsAndEmit(cfg: Config, expanded: ExpandedSpecInput
       `// Source: ${spec.sourcePath}`,
       `// ====================`,
       ops || `// (no operations found after filtering)`,
-      ``
+      ``,
     );
   }
 

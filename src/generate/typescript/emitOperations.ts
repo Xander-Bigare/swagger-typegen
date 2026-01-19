@@ -19,12 +19,20 @@ function collectParameters(pathItem: any, op: any): ParamBucket {
   return bucket;
 }
 
-function paramsObjectTs(params: any[], ctx: TypegenContext, hintPrefix: string): string {
+function paramsObjectTs(
+  params: any[],
+  ctx: TypegenContext,
+  hintPrefix: string,
+): string {
   if (!params.length) return "{}";
-  const req = new Set<string>(params.filter((p) => p.required).map((p) => p.name));
+  const req = new Set<string>(
+    params.filter((p) => p.required).map((p) => p.name),
+  );
 
   const lines = params.map((p) => {
-    const key = /^[A-Za-z_][A-Za-z0-9_]*$/.test(p.name) ? p.name : JSON.stringify(p.name);
+    const key = /^[A-Za-z_][A-Za-z0-9_]*$/.test(p.name)
+      ? p.name
+      : JSON.stringify(p.name);
     const opt = req.has(p.name) ? "" : "?";
 
     let schema: any = p?.schema;
@@ -42,14 +50,21 @@ function paramsObjectTs(params: any[], ctx: TypegenContext, hintPrefix: string):
 
 function pickContentSchema(content: any): any {
   if (!content || typeof content !== "object") return undefined;
-  if (content["application/json"]?.schema) return content["application/json"].schema;
+  if (content["application/json"]?.schema)
+    return content["application/json"].schema;
   const first = Object.values<any>(content)[0];
   return first?.schema;
 }
 
 function opName(method: string, path: string, operation: any): string {
-  if (operation?.operationId) return toSafeIdentifier(toPascalCase(operation.operationId));
-  const cleaned = path.replace(/[{}]/g, "").split("/").filter(Boolean).map(toPascalCase).join("");
+  if (operation?.operationId)
+    return toSafeIdentifier(toPascalCase(operation.operationId));
+  const cleaned = path
+    .replace(/[{}]/g, "")
+    .split("/")
+    .filter(Boolean)
+    .map(toPascalCase)
+    .join("");
   return toSafeIdentifier(toPascalCase(method) + cleaned);
 }
 
@@ -64,7 +79,9 @@ function emitOneOperation(args: {
   const { operationTypePrefix, path, method, pathItem, operation, ctx } = args;
 
   const baseName = opName(method, path, operation);
-  const name = operationTypePrefix ? `${operationTypePrefix}${baseName}` : baseName;
+  const name = operationTypePrefix
+    ? `${operationTypePrefix}${baseName}`
+    : baseName;
 
   const buckets = collectParameters(pathItem, operation);
 
@@ -73,16 +90,28 @@ function emitOneOperation(args: {
   const headerParams = paramsObjectTs(buckets.header, ctx, `${name}Header`);
 
   const reqBodySchema = pickContentSchema(operation?.requestBody?.content);
-  const reqBodyTs = reqBodySchema ? schemaToTs(reqBodySchema, ctx, `${name}RequestBody`) : "undefined";
+  const reqBodyTs = reqBodySchema
+    ? schemaToTs(reqBodySchema, ctx, `${name}RequestBody`)
+    : "undefined";
 
   const responses = operation?.responses ?? {};
   const variants: string[] = [];
 
   for (const [status, resp] of Object.entries<any>(responses)) {
     const schema = pickContentSchema(resp?.content);
-    const bodyTs = schema ? schemaToTs(schema, ctx, `${name}Response${status === "default" ? "Default" : status}`) : "unknown";
+    const bodyTs = schema
+      ? schemaToTs(
+          schema,
+          ctx,
+          `${name}Response${status === "default" ? "Default" : status}`,
+        )
+      : "unknown";
     const statusLit =
-      status === "default" ? `"default"` : /^[0-9]{3}$/.test(status) ? status : JSON.stringify(status);
+      status === "default"
+        ? `"default"`
+        : /^[0-9]{3}$/.test(status)
+          ? status
+          : JSON.stringify(status);
     variants.push(`{ status: ${statusLit}; body: ${bodyTs}; }`);
   }
 
@@ -98,10 +127,23 @@ function emitOneOperation(args: {
   ].join("\n");
 }
 
-export function emitOperations(doc: any, ctx: TypegenContext, operationTypePrefix: string): string {
+export function emitOperations(
+  doc: any,
+  ctx: TypegenContext,
+  operationTypePrefix: string,
+): string {
   const out: string[] = [];
   const paths = doc?.paths ?? {};
-  const methodKeys = ["get", "post", "put", "patch", "delete", "head", "options", "trace"];
+  const methodKeys = [
+    "get",
+    "post",
+    "put",
+    "patch",
+    "delete",
+    "head",
+    "options",
+    "trace",
+  ];
 
   for (const [p, pathItem] of Object.entries<any>(paths)) {
     for (const m of methodKeys) {
@@ -116,7 +158,7 @@ export function emitOperations(doc: any, ctx: TypegenContext, operationTypePrefi
           pathItem,
           operation: op,
           ctx,
-        })
+        }),
       );
       out.push("");
     }

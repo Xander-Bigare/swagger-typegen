@@ -12,7 +12,11 @@ function isObject(v: any): v is Record<string, any> {
 }
 
 function sortObjectKeys(obj: Record<string, any>): Record<string, any> {
-  return Object.fromEntries(Object.keys(obj).sort().map((k) => [k, obj[k]]));
+  return Object.fromEntries(
+    Object.keys(obj)
+      .sort()
+      .map((k) => [k, obj[k]]),
+  );
 }
 
 export function canonicalizeSchema(schema: any): any {
@@ -20,7 +24,9 @@ export function canonicalizeSchema(schema: any): any {
   if (Array.isArray(schema)) {
     // for oneOf/anyOf/allOf order isn't semantically important, so sort by stable JSON
     const canonItems = schema.map(canonicalizeSchema);
-    return canonItems.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+    return canonItems.sort((a, b) =>
+      JSON.stringify(a).localeCompare(JSON.stringify(b)),
+    );
   }
   if (!isObject(schema)) return schema;
 

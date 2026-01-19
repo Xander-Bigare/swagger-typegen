@@ -20,7 +20,9 @@ export function emitTypesForSpec(args: {
 `;
 
   const schemasObj = document?.components?.schemas ?? {};
-  const schemaNames = Object.keys(schemasObj).map((raw) => toSafeIdentifier(raw));
+  const schemaNames = Object.keys(schemasObj).map((raw) =>
+    toSafeIdentifier(raw),
+  );
 
   // Map of top-level enum schema name -> signature key
   const schemaEnumKeyByName = new Map<string, string>();
@@ -28,7 +30,10 @@ export function emitTypesForSpec(args: {
     const ident = toSafeIdentifier(rawName);
     const s = schemasObj[rawName];
     if (Array.isArray(s?.enum) && s.enum.length > 0) {
-      schemaEnumKeyByName.set(ident, JSON.stringify({ values: s.enum, nullable: !!s.nullable }));
+      schemaEnumKeyByName.set(
+        ident,
+        JSON.stringify({ values: s.enum, nullable: !!s.nullable }),
+      );
     }
   }
 

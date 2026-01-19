@@ -50,7 +50,8 @@ function wrapNullable(ts: string, schema: any): string {
 }
 
 function enumMemberNameFromValue(v: string | number): string {
-  if (typeof v === "number") return `Value${String(v).replace(/[^0-9]/g, "") || "Number"}`;
+  if (typeof v === "number")
+    return `Value${String(v).replace(/[^0-9]/g, "") || "Number"}`;
 
   // Convert value -> PascalCase identifier
   // "bank_transfer" -> "BankTransfer"
@@ -70,7 +71,12 @@ function enumMemberNameFromValue(v: string | number): string {
   return name;
 }
 
-function registerEnum(ctx: TypegenContext, nameHint: string, values: any[], nullable: boolean): string {
+function registerEnum(
+  ctx: TypegenContext,
+  nameHint: string,
+  values: any[],
+  nullable: boolean,
+): string {
   const baseTypeName = toSafeIdentifier(toPascalCase(nameHint || "Enum"));
   const sig = signatureKey(values, nullable);
 
@@ -112,7 +118,11 @@ function registerEnum(ctx: TypegenContext, nameHint: string, values: any[], null
   return typeName;
 }
 
-export function schemaToTs(schema: any, ctx: TypegenContext, nameHint?: string): string {
+export function schemaToTs(
+  schema: any,
+  ctx: TypegenContext,
+  nameHint?: string,
+): string {
   if (!schema) return "unknown";
   if (schema.$ref) return refTypeName(schema.$ref);
 
@@ -121,9 +131,12 @@ export function schemaToTs(schema: any, ctx: TypegenContext, nameHint?: string):
     const values = schema.enum;
 
     // TS enums only for string|number values; otherwise fallback to union
-    const ok = values.every((v: any) => typeof v === "string" || typeof v === "number");
+    const ok = values.every(
+      (v: any) => typeof v === "string" || typeof v === "number",
+    );
     if (!ok) {
-      const u = values.map((v: any) => JSON.stringify(v)).join(" | ") || "unknown";
+      const u =
+        values.map((v: any) => JSON.stringify(v)).join(" | ") || "unknown";
       return wrapNullable(u, schema);
     }
 
@@ -134,21 +147,27 @@ export function schemaToTs(schema: any, ctx: TypegenContext, nameHint?: string):
 
   if (schema.oneOf?.length) {
     const u = schema.oneOf
-      .map((s: any, i: number) => schemaToTs(s, ctx, `${nameHint ?? "OneOf"}${i + 1}`))
+      .map((s: any, i: number) =>
+        schemaToTs(s, ctx, `${nameHint ?? "OneOf"}${i + 1}`),
+      )
       .join(" | ");
     return wrapNullable(u || "unknown", schema);
   }
 
   if (schema.anyOf?.length) {
     const u = schema.anyOf
-      .map((s: any, i: number) => schemaToTs(s, ctx, `${nameHint ?? "AnyOf"}${i + 1}`))
+      .map((s: any, i: number) =>
+        schemaToTs(s, ctx, `${nameHint ?? "AnyOf"}${i + 1}`),
+      )
       .join(" | ");
     return wrapNullable(u || "unknown", schema);
   }
 
   if (schema.allOf?.length) {
     const i = schema.allOf
-      .map((s: any, j: number) => schemaToTs(s, ctx, `${nameHint ?? "AllOf"}${j + 1}`))
+      .map((s: any, j: number) =>
+        schemaToTs(s, ctx, `${nameHint ?? "AllOf"}${j + 1}`),
+      )
       .join(" & ");
     return wrapNullable(i || "unknown", schema);
   }
@@ -156,12 +175,15 @@ export function schemaToTs(schema: any, ctx: TypegenContext, nameHint?: string):
   const type = schema.type;
 
   if (type === "string") return wrapNullable("string", schema);
-  if (type === "integer" || type === "number") return wrapNullable("number", schema);
+  if (type === "integer" || type === "number")
+    return wrapNullable("number", schema);
   if (type === "boolean") return wrapNullable("boolean", schema);
   if (type === "null") return "null";
 
   if (type === "array" || schema.items) {
-    const itemTs = schema.items ? schemaToTs(schema.items, ctx, `${nameHint ?? "Item"}Item`) : "unknown";
+    const itemTs = schema.items
+      ? schemaToTs(schema.items, ctx, `${nameHint ?? "Item"}Item`)
+      : "unknown";
     return wrapNullable(`Array<${itemTs}>`, schema);
   }
 
@@ -172,7 +194,9 @@ export function schemaToTs(schema: any, ctx: TypegenContext, nameHint?: string):
     const propLines: string[] = [];
 
     for (const [k, v] of Object.entries<any>(props)) {
-      const safeKey = /^[A-Za-z_][A-Za-z0-9_]*$/.test(k) ? k : JSON.stringify(k);
+      const safeKey = /^[A-Za-z_][A-Za-z0-9_]*$/.test(k)
+        ? k
+        : JSON.stringify(k);
       const optional = req.has(k) ? "" : "?";
       const propHint = `${nameHint ?? "Anon"}${toPascalCase(k)}`;
       propLines.push(`${safeKey}${optional}: ${schemaToTs(v, ctx, propHint)};`);
@@ -201,7 +225,8 @@ export function emitEnumExports(ctx: TypegenContext): string {
   for (const e of ctx.enums) {
     out.push(`export enum ${e.typeName} {`);
     for (const m of e.members) {
-      const valLit = typeof m.value === "string" ? JSON.stringify(m.value) : String(m.value);
+      const valLit =
+        typeof m.value === "string" ? JSON.stringify(m.value) : String(m.value);
       out.push(`  ${m.key} = ${valLit},`);
     }
     out.push(`}`);

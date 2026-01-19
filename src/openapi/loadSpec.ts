@@ -17,7 +17,8 @@ async function statSafe(p: string) {
 }
 
 function detectVersion(obj: any): "oas3" | "swagger2" | "unknown" {
-  if (obj && typeof obj.openapi === "string" && obj.openapi.startsWith("3.")) return "oas3";
+  if (obj && typeof obj.openapi === "string" && obj.openapi.startsWith("3."))
+    return "oas3";
   if (obj && obj.swagger === "2.0") return "swagger2";
   return "unknown";
 }
@@ -31,7 +32,7 @@ async function loadOneSpecFile(
   cfg: Config,
   specCfg: SpecConfig,
   filePath: string,
-  derivedIdPrefix?: string
+  derivedIdPrefix?: string,
 ): Promise<ExpandedSpecInput> {
   const absPath = path.resolve(filePath);
   const text = await fs.readFile(absPath, "utf8");
@@ -42,7 +43,9 @@ async function loadOneSpecFile(
 
   if (kind === "swagger2") {
     if (!cfg.allowV2Conversion) {
-      throw new Error(`Spec is Swagger/OpenAPI 2.0 but allowV2Conversion=false: ${absPath}`);
+      throw new Error(
+        `Spec is Swagger/OpenAPI 2.0 but allowV2Conversion=false: ${absPath}`,
+      );
     }
     oas3Obj = await convertV2ToV3(rawObj, absPath);
   } else if (kind === "oas3") {
@@ -60,7 +63,9 @@ async function loadOneSpecFile(
 
   const baseId = specCfg.id ?? makeSpecIdFromFilename(absPath);
   const specId =
-    derivedIdPrefix && derivedIdPrefix !== baseId ? `${derivedIdPrefix}__${baseId}` : baseId;
+    derivedIdPrefix && derivedIdPrefix !== baseId
+      ? `${derivedIdPrefix}__${baseId}`
+      : baseId;
 
   const routes: SpecRoutes = specCfg.routes ?? {};
   logInfo(`Loaded spec ${specId} from ${absPath}`);
@@ -77,13 +82,20 @@ async function listSpecFiles(inputPath: string): Promise<string[]> {
   const abs = path.resolve(inputPath);
   const st = await statSafe(abs);
   if (st?.isDirectory()) {
-    const files = await fg(["**/*.yaml", "**/*.yml", "**/*.json"], { cwd: abs, absolute: true });
+    const files = await fg(["**/*.yaml", "**/*.yml", "**/*.json"], {
+      cwd: abs,
+      absolute: true,
+    });
+    // sort for consistency
+    files.sort((a, b) => a.localeCompare(b));
     return files;
   }
   return [abs];
 }
 
-export async function expandSpecInputs(cfg: Config): Promise<ExpandedSpecInput[]> {
+export async function expandSpecInputs(
+  cfg: Config,
+): Promise<ExpandedSpecInput[]> {
   const out: ExpandedSpecInput[] = [];
   for (const specCfg of cfg.specs) {
     const files = await listSpecFiles(specCfg.input);

@@ -5,7 +5,9 @@ import { loadConfig } from "../config/loadConfig";
 
 const program = new Command();
 
-program.name("swagger-typegen").description("Generate TS types from OpenAPI specs");
+program
+  .name("swagger-typegen")
+  .description("Generate TS types from OpenAPI specs");
 
 program
   .command("generate")

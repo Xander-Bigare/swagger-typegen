@@ -1,7 +1,16 @@
 import micromatch from "micromatch";
 import { SpecRoutes, HttpMethod } from "../config/types";
 
-const METHODS: HttpMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE"];
+const METHODS: HttpMethod[] = [
+  "GET",
+  "POST",
+  "PUT",
+  "PATCH",
+  "DELETE",
+  "HEAD",
+  "OPTIONS",
+  "TRACE",
+];
 
 function deepClone<T>(v: T): T {
   return JSON.parse(JSON.stringify(v));
@@ -12,18 +21,28 @@ function methodKeyToHttpMethod(methodKey: string): HttpMethod | null {
   return (METHODS as string[]).includes(m) ? (m as HttpMethod) : null;
 }
 
-function matchesRule(pathname: string, method: HttpMethod, rule: { path: string; methods?: HttpMethod[] }): boolean {
+function matchesRule(
+  pathname: string,
+  method: HttpMethod,
+  rule: { path: string; methods?: HttpMethod[] },
+): boolean {
   if (!micromatch.isMatch(pathname, rule.path, { dot: true })) return false;
   if (!rule.methods || rule.methods.length === 0) return true;
   return rule.methods.map((x) => x.toUpperCase()).includes(method);
 }
 
-function isIncluded(pathname: string, method: HttpMethod, routes: SpecRoutes): boolean {
+function isIncluded(
+  pathname: string,
+  method: HttpMethod,
+  routes: SpecRoutes,
+): boolean {
   const includes = routes.include ?? [];
   const excludes = routes.exclude ?? [];
 
   const included =
-    includes.length === 0 ? true : includes.some((r) => matchesRule(pathname, method, r));
+    includes.length === 0
+      ? true
+      : includes.some((r) => matchesRule(pathname, method, r));
 
   const excluded = excludes.some((r) => matchesRule(pathname, method, r));
   return included && !excluded;
@@ -47,7 +66,9 @@ export function filterRoutes(doc: any, routes: SpecRoutes): any {
     }
 
     // keep path if it has any methods after filtering
-    const hasMethod = Object.keys(newItem).some((k) => !!methodKeyToHttpMethod(k));
+    const hasMethod = Object.keys(newItem).some(
+      (k) => !!methodKeyToHttpMethod(k),
+    );
     if (hasMethod) newPaths[p] = newItem;
   }
 

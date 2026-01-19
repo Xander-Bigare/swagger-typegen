@@ -1,6 +1,6 @@
 import path from "node:path";
 import { mkdirp, writeTextFile } from "./utils/fs";
-import { Config, ExpandedSpecInput } from "./config/types";
+import { Config } from "./config/types";
 import { expandSpecInputs } from "./openapi/loadSpec";
 import { filterRoutes } from "./openapi/filterRoutes";
 import { pruneSchemas } from "./openapi/pruneSchemas";
