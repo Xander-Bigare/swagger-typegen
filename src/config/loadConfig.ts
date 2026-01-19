@@ -7,7 +7,7 @@ const DEFAULT_CONFIG: Omit<Config, "specs"> = {
   version: 1,
   allowV2Conversion: false,
   output: {
-    dir: "./types",
+    dir: "./output",
     perSpecFileName: "{specId}.types.ts",
     mergedFileName: "api-types.ts",
   },

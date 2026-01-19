@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from "commander";
 import { runGenerate } from "../main";
 import { loadConfig } from "../config/loadConfig";

@@ -8,11 +8,6 @@ import { convertV2ToV3 } from "./convertV2ToV3";
 import { makeSpecIdFromFilename } from "../utils/naming";
 import { logInfo } from "../utils/logger";
 
-function isDirectoryPath(p: string): boolean {
-  // heuristic: if it exists and is directory; otherwise treat as file
-  return true;
-}
-
 async function statSafe(p: string) {
   try {
     return await fs.stat(p);

@@ -2,7 +2,7 @@ version: 1
 allowV2Conversion: true
 
 output:
-  dir: ./ouput/
+  dir: ./output
   perSpecFileName: "{specId}.types.ts"
   mergedFileName: "api-types.ts"
 
@@ -21,8 +21,11 @@ specs:
           methods: [GET, POST]
         - path: "/payments"
 
-  # - id: identity
-  #   input: ./swaggers/identity/   # folder => all yaml/yml/json
-  #   routes:
-  #     exclude:
-  #       # - path: "/users/*/private"
+  - id: identity
+    input: ./swaggers/identity/   # folder => all yaml/yml/json
+    routes:
+      exclude:
+        # - path: "/users/*/private"
+
+  - id: article
+    input: ./swaggers/article.yaml

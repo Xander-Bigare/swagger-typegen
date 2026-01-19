@@ -11,7 +11,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/postbuild.js",
+    "build": "tsc -p tsconfig.json",
     "dev": "node dist/cli/index.js generate --config ./swagger-typegen.config.yaml",
     "generate": "node dist/cli/index.js generate"
   },
