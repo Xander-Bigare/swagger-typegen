@@ -1,30 +1,18 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import fg from "fast-glob";
-import YAML from "yaml";
 import SwaggerParser from "@apidevtools/swagger-parser";
 import { Config, ExpandedSpecInput, SpecConfig, SpecRoutes } from "../config/types";
 import { convertV2ToV3 } from "./convertV2ToV3";
 import { makeSpecIdFromFilename } from "../utils/naming";
 import { logInfo } from "../utils/logger";
+import { parseYamlOrJson } from "../utils/parseAny";
 
 async function statSafe(p: string) {
   try {
     return await fs.stat(p);
   } catch {
     return null;
-  }
-}
-
-function parseAny(filePath: string, text: string): any {
-  const ext = path.extname(filePath).toLowerCase();
-  if (ext === ".yaml" || ext === ".yml") return YAML.parse(text);
-  if (ext === ".json") return JSON.parse(text);
-  // fallback
-  try {
-    return YAML.parse(text);
-  } catch {
-    return JSON.parse(text);
   }
 }
 
@@ -47,7 +35,7 @@ async function loadOneSpecFile(
 ): Promise<ExpandedSpecInput> {
   const absPath = path.resolve(filePath);
   const text = await fs.readFile(absPath, "utf8");
-  const rawObj = parseAny(absPath, text);
+  const rawObj = parseYamlOrJson(absPath, text);
 
   const kind = detectVersion(rawObj);
   let oas3Obj: any;

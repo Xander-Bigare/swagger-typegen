@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import YAML from "yaml";
 import { Config } from "./types";
+import { parseYamlOrJson } from "../utils/parseAny";
 
 const DEFAULT_CONFIG: Omit<Config, "specs"> = {
   version: 1,
@@ -25,18 +25,6 @@ async function fileExists(p: string): Promise<boolean> {
     return true;
   } catch {
     return false;
-  }
-}
-
-function parseConfigText(filePath: string, text: string): any {
-  const ext = path.extname(filePath).toLowerCase();
-  if (ext === ".yaml" || ext === ".yml") return YAML.parse(text);
-  if (ext === ".json") return JSON.parse(text);
-  // try yaml then json as fallback
-  try {
-    return YAML.parse(text);
-  } catch {
-    return JSON.parse(text);
   }
 }
 
@@ -92,7 +80,7 @@ export async function loadConfig(configPath?: string): Promise<Config> {
   }
 
   const text = await fs.readFile(resolvedPath, "utf8");
-  const raw = parseConfigText(resolvedPath, text);
+  const raw = parseYamlOrJson(resolvedPath, text);
 
   // merge defaults
   const merged: Config = {
