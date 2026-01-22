@@ -75,7 +75,16 @@ export async function loadConfig(configPath?: string): Promise<Config> {
 
   if (!resolvedPath) {
     throw new Error(
-      "No config found. Provide --config or create swagger-typegen.config.(yaml|yml|json) in the current directory."
+      [
+        `No config found in: ${cwd}`,
+        "",
+        "Provide --config <path> or create one of:",
+        "  - swagger-typegen.config.yaml",
+        "  - swagger-typegen.config.yml",
+        "  - swagger-typegen.config.json",
+        "",
+        "Tip: run `swagger-typegen init` (or `npx swagger-typegen init`) to scaffold an example config and a ./swaggers/ folder.",
+      ].join("\n")
     );
   }
 

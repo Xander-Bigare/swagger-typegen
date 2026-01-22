@@ -18,8 +18,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "prepublishOnly": "npm run build",
-    "generate": "node dist/cli/index.js generate"
+    "init": "node dist/cli/index.js init",
+    "generate": "node dist/cli/index.js generate",
+    "pack-dry-run": "npm pack --dry-run",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",

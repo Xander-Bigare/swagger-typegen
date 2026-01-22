@@ -37,3 +37,4 @@ temp/
 # ---- Ignore Generated / Dependencies ----
 output/**
 node_modules/**
+*.tgz
