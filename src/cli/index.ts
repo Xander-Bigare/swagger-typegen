@@ -9,6 +9,8 @@ program
   .name("swagger-typegen")
   .description("Generate TS types from OpenAPI specs");
 
+// To manually provide a path to a config file
+// "node dist/cli/index.js generate --config ./swagger-typegen.config.yaml"
 program
   .command("generate")
   .option("--config <path>", "Path to config file (yaml/yml/json)")

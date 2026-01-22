@@ -4,6 +4,12 @@
   "description": "Generate TypeScript types from OpenAPI (Swagger) specs with filtering and merge mode",
   "license": "MIT",
   "main": "dist/main.js",
+  "exports": {
+    ".": {
+      "require": "./dist/main.js",
+      "types": "./dist/main.d.ts"
+    }
+  },
   "bin": {
     "swagger-typegen": "dist/cli/index.js"
   },
@@ -12,7 +18,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "node dist/cli/index.js generate --config ./swagger-typegen.config.yaml",
+    "prepublishOnly": "npm run build",
     "generate": "node dist/cli/index.js generate"
   },
   "dependencies": {

@@ -7,10 +7,22 @@ output:
   mergedFileName: "api-types.ts"
 
 mode:
+  # Singular type files or 1 merged file
   mergeOutput: true
 
 features:
   pruneUnusedSchemas: true
+
+# Below is an example using the sample spec/swagger files in ./swagger.
+#
+# To generate types for *all* spec/swagger files in a folder, point `input` at a directory:
+#   FORMAT  => [PATH]/<FolderName>/
+#   EXAMPLE => ./swaggers/identity/
+#
+# A directory input is searched recursively for:
+#   **/*.yaml, **/*.yml, **/*.json
+#
+# You can mix directory inputs and individual spec files in a single config.
 
 specs:
   - id: billing
@@ -22,7 +34,7 @@ specs:
         - path: "/payments"
 
   - id: identity
-    input: ./swaggers/identity/   # folder => all yaml/yml/json
+    input: ./swaggers/identity/ # folder => all yaml/yml/json
     routes:
       exclude:
         # - path: "/users/*/private"
