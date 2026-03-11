@@ -17,6 +17,18 @@ export function toSafeIdentifier(name: string): string {
   return prefixed || "Unnamed";
 }
 
+export function toSafeFileNameStem(name: string): string {
+  const trimmed = String(name).trim();
+  const collapsed = trimmed.replace(/\s+/g, "-");
+  const cleaned = collapsed.replace(/[^A-Za-z0-9._-]/g, "-");
+  const normalized = cleaned
+    .replace(/-+/g, "-")
+    .replace(/\.+/g, ".")
+    .replace(/^[-.]+|[-.]+$/g, "");
+
+  return normalized || "unnamed";
+}
+
 export function makeSpecIdFromFilename(filePath: string): string {
   const base = path.basename(filePath).replace(/\.(yaml|yml|json)$/i, "");
   return toSafeIdentifier(base);

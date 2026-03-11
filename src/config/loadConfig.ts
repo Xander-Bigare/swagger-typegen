@@ -9,6 +9,7 @@ const DEFAULT_CONFIG: Omit<Config, "specs"> = {
   output: {
     dir: "./output",
     perSpecFileName: "{specId}.types.ts",
+    perSpecFileNameStrategy: "specId",
     mergedFileName: "api-types.ts",
   },
   mode: { mergeOutput: false },
@@ -42,6 +43,12 @@ function validateConfig(raw: any): asserts raw is Config {
   if (!isObject(raw.output)) throw new Error("Config.output must be an object.");
   if (typeof raw.output.dir !== "string") throw new Error("output.dir must be a string.");
   if (typeof raw.output.perSpecFileName !== "string") throw new Error("output.perSpecFileName must be a string.");
+  if (
+    raw.output.perSpecFileNameStrategy !== "specId" &&
+    raw.output.perSpecFileNameStrategy !== "title"
+  ) {
+    throw new Error('output.perSpecFileNameStrategy must be either "specId" or "title".');
+  }
   if (typeof raw.output.mergedFileName !== "string") throw new Error("output.mergedFileName must be a string.");
 
   if (!isObject(raw.mode) || typeof raw.mode.mergeOutput !== "boolean") {

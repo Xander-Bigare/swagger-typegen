@@ -31,8 +31,11 @@ allowV2Conversion: true
 output:
   # Where generated files are written
   dir: ./output
-  # Used when mode.mergeOutput is false
-  perSpecFileName: "{specId}.types.ts"
+  # Used when mode.mergeOutput is false.
+  # Available template vars: {specId}, {title}, {fileNameBase}
+  perSpecFileName: "{fileNameBase}.types.ts"
+  # Choose whether {fileNameBase} resolves from spec.id or from info.title
+  perSpecFileNameStrategy: "specId"
   # Used when mode.mergeOutput is true
   mergedFileName: "api-types.ts"
 

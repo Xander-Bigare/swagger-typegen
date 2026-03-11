@@ -9,6 +9,19 @@ import { mergeSpecsAndEmit } from "./merge/mergeSpecs";
 import { formatTs } from "./utils/format";
 import { applyTemplate } from "./utils/template";
 import { logInfo } from "./utils/logger";
+import { toSafeFileNameStem } from "./utils/naming";
+
+function getPerSpecTemplateVars(cfg: Config, spec: { specId: string; specTitle?: string }) {
+  const rawTitle = spec.specTitle?.trim() || spec.specId;
+  const safeTitle = toSafeFileNameStem(rawTitle);
+
+  return {
+    specId: spec.specId,
+    title: safeTitle,
+    fileNameBase:
+      cfg.output.perSpecFileNameStrategy === "title" ? safeTitle : spec.specId,
+  };
+}
 
 export async function runGenerate(cfg: Config): Promise<void> {
   const outDir = path.resolve(cfg.output.dir);
@@ -29,6 +42,8 @@ export async function runGenerate(cfg: Config): Promise<void> {
     return;
   }
 
+  const seenOutputPaths = new Map<string, string>();
+
   for (const spec of expanded) {
     const filtered = filterRoutes(spec.document, spec.routes);
     const pruned = cfg.features.pruneUnusedSchemas ? pruneSchemas(filtered) : filtered;
@@ -37,12 +52,28 @@ export async function runGenerate(cfg: Config): Promise<void> {
       specId: spec.specId,
       sourcePath: spec.sourcePath,
       document: pruned,
-      operationTypePrefix: "", // per spec file doesn't need prefix; change if desired
+      operationTypePrefix: "", // per spec file doesn't need prefix
     });
 
     const formatted = await formatTs(ts);
-    const fileName = applyTemplate(cfg.output.perSpecFileName, { specId: spec.specId });
+    const fileName = applyTemplate(
+      cfg.output.perSpecFileName,
+      getPerSpecTemplateVars(cfg, spec),
+    );
     const outPath = path.join(outDir, fileName);
+    const existingSource = seenOutputPaths.get(outPath);
+    if (existingSource) {
+      throw new Error(
+        [
+          `Multiple specs resolved to the same output path: ${outPath}`,
+          `First spec: ${existingSource}`,
+          `Conflicting spec: ${spec.sourcePath}`,
+          `Adjust output.perSpecFileName or switch output.perSpecFileNameStrategy.`,
+        ].join("\n"),
+      );
+    }
+    seenOutputPaths.set(outPath, spec.sourcePath);
+
     await writeTextFile(outPath, formatted);
     logInfo(`Wrote spec types: ${outPath}`);
   }

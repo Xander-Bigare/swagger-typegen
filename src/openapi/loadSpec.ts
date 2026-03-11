@@ -68,10 +68,18 @@ async function loadOneSpecFile(
       : baseId;
 
   const routes: SpecRoutes = specCfg.routes ?? {};
-  logInfo(`Loaded spec ${specId} from ${absPath}`);
+  const specTitle =
+    typeof oas3Obj?.info?.title === "string" && oas3Obj.info.title.trim()
+      ? oas3Obj.info.title.trim()
+      : undefined;
+
+  logInfo(
+    `Loaded spec ${specId}${specTitle ? ` (${specTitle})` : ""} from ${absPath}`,
+  );
 
   return {
     specId,
+    specTitle,
     sourcePath: absPath,
     routes,
     document: oas3Obj,
@@ -99,7 +107,7 @@ export async function expandSpecInputs(
   const out: ExpandedSpecInput[] = [];
   for (const specCfg of cfg.specs) {
     const files = await listSpecFiles(specCfg.input);
-    const prefix = specCfg.id; // if folder, use id as prefix for derived specIds
+    const prefix = specCfg.id;
     for (const f of files) {
       const derivedPrefix = (await (async () => {
         const st = await statSafe(path.resolve(specCfg.input));

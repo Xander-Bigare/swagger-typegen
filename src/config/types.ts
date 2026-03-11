@@ -24,13 +24,16 @@ export type SpecConfig = {
   routes?: SpecRoutes;
 };
 
+export type PerSpecFileNameStrategy = "specId" | "title";
+
 export type Config = {
   version: 1;
   allowV2Conversion: boolean;
 
   output: {
     dir: string;
-    perSpecFileName: string; // template supports {specId}
+    perSpecFileName: string; // template supports {specId} and {title}
+    perSpecFileNameStrategy: PerSpecFileNameStrategy;
     mergedFileName: string;
   };
 
@@ -47,6 +50,7 @@ export type Config = {
 
 export type ExpandedSpecInput = {
   specId: string;
+  specTitle?: string;
   sourcePath: string;
   routes: SpecRoutes;
   document: any; // OpenAPI 3 document object

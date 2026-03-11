@@ -1,0 +1,44 @@
+# swagger-typegen example config
+version: 1
+
+# If you have Swagger/OpenAPI v2 specs, set this to true to auto-convert to OpenAPI v3.
+allowV2Conversion: true
+
+output:
+  # Where generated files are written
+  dir: ./output
+  # Used when mode.mergeOutput is false.
+  # Available template vars: {specId}, {title}, {fileNameBase}
+  perSpecFileName: "{fileNameBase}.types.ts"
+  # Choose whether {fileNameBase} resolves from spec.id or from info.title
+  perSpecFileNameStrategy: "title"
+  # Used when mode.mergeOutput is true
+  mergedFileName: "api-types.ts"
+
+mode:
+  # false => one output file per spec (or per file when using a folder input)
+  # true  => a single merged output file for all specs
+  mergeOutput: true
+
+features:
+  pruneUnusedSchemas: true
+
+specs:
+  # - id: everything
+  #   input: ./swaggers/
+  - id: billing
+    input: ./swaggers/billing.json
+    routes:
+      include:
+        - path: "/invoices/**"
+          methods: [GET, POST]
+        - path: "/payments"
+
+  # - id: identity
+  #   input: ./swaggers/identity/ # folder => all yaml/yml/json
+  #   routes:
+  #     exclude:
+  #       # - path: "/users/*/private"
+
+  - id: article
+    input: ./swaggers/article.yaml
