@@ -53,6 +53,7 @@ export async function runGenerate(cfg: Config): Promise<void> {
       sourcePath: spec.sourcePath,
       document: pruned,
       operationTypePrefix: "", // per spec file doesn't need prefix
+      inlinePrimitiveAliases: cfg.features.inlinePrimitiveAliases,
     });
 
     const formatted = await formatTs(ts);

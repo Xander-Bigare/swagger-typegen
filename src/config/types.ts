@@ -43,6 +43,7 @@ export type Config = {
 
   features: {
     pruneUnusedSchemas: boolean;
+    inlinePrimitiveAliases: boolean;
   };
 
   specs: SpecConfig[];

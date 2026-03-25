@@ -1,4 +1,4 @@
-import { emitEnumExports, emitSchemas, createTypegenContext } from "./emitSchemas";
+import { emitEnumExports, emitSchemas, createTypegenContext, collectPrimitiveAliasByName } from "./emitSchemas";
 import { emitOperations } from "./emitOperations";
 import { toSafeIdentifier } from "../../utils/naming";
 
@@ -6,9 +6,16 @@ export function emitTypesForSpec(args: {
   specId: string;
   sourcePath: string;
   document: any;
-  operationTypePrefix: string; // e.g. "Billing_"
+  operationTypePrefix: string;
+  inlinePrimitiveAliases: boolean;
 }): string {
-  const { specId, sourcePath, document, operationTypePrefix } = args;
+  const {
+    specId,
+    sourcePath,
+    document,
+    operationTypePrefix,
+    inlinePrimitiveAliases,
+} = args;
 
   const header = `/* eslint-disable */
 /**
@@ -40,6 +47,8 @@ export function emitTypesForSpec(args: {
   const ctx = createTypegenContext({
     reservedNames: schemaNames,
     schemaEnumKeyByName,
+    primitiveAliasByName: collectPrimitiveAliasByName(document),
+    inlinePrimitiveAliases,
   });
 
   // Generate schemas + ops first (collect enums during traversal)

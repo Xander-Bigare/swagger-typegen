@@ -3,7 +3,7 @@ import { canonicalizeSchema } from "../openapi/canonicalizeSchema";
 import { diffSchemas } from "../openapi/diffSchemas";
 import { filterRoutes } from "../openapi/filterRoutes";
 import { pruneSchemas } from "../openapi/pruneSchemas";
-import { createTypegenContext, emitEnumExports, emitSchemas } from "../generate/typescript/emitSchemas";
+import { collectPrimitiveAliasByName, createTypegenContext, emitEnumExports, emitSchemas } from "../generate/typescript/emitSchemas";
 import { emitOperations } from "../generate/typescript/emitOperations";
 import { toSafeIdentifier } from "../utils/naming";
 
@@ -93,6 +93,8 @@ export async function mergeSpecsAndEmit(
   const ctx = createTypegenContext({
     reservedNames: reservedSchemaNames,
     schemaEnumKeyByName,
+    primitiveAliasByName: collectPrimitiveAliasByName(mergedDoc),
+    inlinePrimitiveAliases: cfg.features.inlinePrimitiveAliases,
   });
 
   // Generate schemas (collect enums)

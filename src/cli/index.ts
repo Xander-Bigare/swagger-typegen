@@ -46,6 +46,10 @@ mode:
 
 features:
   pruneUnusedSchemas: true
+  # Inline top-level primitive aliases like:
+  #   export type UserName = string;
+  # into direct primitive usage instead.
+  inlinePrimitiveAliases: false
 
 specs:
   # Folder input: recursively loads **/*.yaml, **/*.yml, **/*.json

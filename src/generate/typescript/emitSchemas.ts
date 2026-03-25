@@ -12,6 +12,8 @@ export type TypegenContext = {
   enums: EnumDef[];
   enumByKey: Map<string, EnumDef>;
   schemaEnumKeyByName: Map<string, string>;
+  primitiveAliasByName: Map<string, string>;
+  inlinePrimitiveAliases: boolean;
 };
 
 function signatureKey(values: any[], nullable: boolean): string {
@@ -28,6 +30,8 @@ function makeUnique(base: string, used: Set<string>): string {
 export function createTypegenContext(opts?: {
   reservedNames?: string[];
   schemaEnumKeyByName?: Map<string, string>;
+  primitiveAliasByName?: Map<string, string>;
+  inlinePrimitiveAliases?: boolean;
 }): TypegenContext {
   const used = new Set<string>(opts?.reservedNames ?? []);
   return {
@@ -35,14 +39,59 @@ export function createTypegenContext(opts?: {
     enums: [],
     enumByKey: new Map(),
     schemaEnumKeyByName: opts?.schemaEnumKeyByName ?? new Map(),
+    primitiveAliasByName: opts?.primitiveAliasByName ?? new Map(),
+    inlinePrimitiveAliases: opts?.inlinePrimitiveAliases ?? false,
   };
 }
 
-function refTypeName(ref: string): string {
+function primitiveSchemaToTs(schema: any): string | undefined {
+  if (!schema || schema.$ref) return undefined;
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) return undefined;
+  if (schema.oneOf?.length || schema.anyOf?.length || schema.allOf?.length) {
+    return undefined;
+  }
+
+  const type = schema.type;
+
+  if (type === "string") return schema?.nullable ? `(string) | null` : "string";
+  if (type === "integer" || type === "number") {
+    return schema?.nullable ? `(number) | null` : "number";
+  }
+  if (type === "boolean") return schema?.nullable ? `(boolean) | null` : "boolean";
+  if (type === "null") return "null";
+
+  return undefined;
+}
+
+export function collectPrimitiveAliasByName(doc: any): Map<string, string> {
+  const out = new Map<string, string>();
+  const schemas = doc?.components?.schemas ?? {};
+
+  for (const rawName of Object.keys(schemas)) {
+    const name = toSafeIdentifier(rawName);
+    const primitiveTs = primitiveSchemaToTs(schemas[rawName]);
+    if (primitiveTs) {
+      out.set(name, primitiveTs);
+    }
+  }
+
+  return out;
+}
+
+function refTypeName(ref: string, ctx: TypegenContext): string {
   const prefix = "#/components/schemas/";
-  if (ref.startsWith(prefix)) return toSafeIdentifier(ref.slice(prefix.length));
-  const seg = ref.split("/").filter(Boolean).pop() ?? "UnknownRef";
-  return toSafeIdentifier(seg);
+  const rawName = ref.startsWith(prefix)
+    ? ref.slice(prefix.length)
+    : ref.split("/").filter(Boolean).pop() ?? "UnknownRef";
+
+  const name = toSafeIdentifier(rawName);
+
+  if (ctx.inlinePrimitiveAliases) {
+    const primitive = ctx.primitiveAliasByName.get(name);
+    if (primitive) return primitive;
+  }
+
+  return name;
 }
 
 function wrapNullable(ts: string, schema: any): string {
@@ -124,7 +173,7 @@ export function schemaToTs(
   nameHint?: string,
 ): string {
   if (!schema) return "unknown";
-  if (schema.$ref) return refTypeName(schema.$ref);
+  if (schema.$ref) return refTypeName(schema.$ref, ctx);
 
   // ENUM => emit TS enum + reference it
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
@@ -144,6 +193,9 @@ export function schemaToTs(
     const enumName = registerEnum(ctx, hint, values, !!schema.nullable);
     return schema.nullable ? `${enumName} | null` : enumName;
   }
+
+  const primitiveTs = primitiveSchemaToTs(schema);
+  if (primitiveTs) return primitiveTs;
 
   if (schema.oneOf?.length) {
     const u = schema.oneOf
@@ -245,9 +297,13 @@ export function emitSchemas(doc: any, ctx: TypegenContext): string {
     const name = toSafeIdentifier(rawName);
     const schema = schemas[rawName];
 
-    // Top-level enum schemas => emitted as enum, not type alias
     if (Array.isArray(schema?.enum) && schema.enum.length > 0) {
-      schemaToTs(schema, ctx, name); // ensure registered
+      schemaToTs(schema, ctx, name);
+      continue;
+    }
+
+    const primitiveTs = primitiveSchemaToTs(schema);
+    if (ctx.inlinePrimitiveAliases && primitiveTs) {
       continue;
     }
 

@@ -13,7 +13,10 @@ const DEFAULT_CONFIG: Omit<Config, "specs"> = {
     mergedFileName: "api-types.ts",
   },
   mode: { mergeOutput: false },
-  features: { pruneUnusedSchemas: true },
+  features: {
+    pruneUnusedSchemas: true,
+    inlinePrimitiveAliases: false,
+  },
 };
 
 function isObject(v: unknown): v is Record<string, unknown> {
@@ -57,8 +60,13 @@ function validateConfig(raw: any): asserts raw is Config {
 
   if (typeof raw.allowV2Conversion !== "boolean") throw new Error("allowV2Conversion must be a boolean.");
 
-  if (!isObject(raw.features) || typeof raw.features.pruneUnusedSchemas !== "boolean") {
-    throw new Error("features.pruneUnusedSchemas must be a boolean.");
+  if (!isObject(raw.features) ||
+    typeof raw.features.pruneUnusedSchemas !== "boolean" ||
+    typeof raw.features.inlinePrimitiveAliases !== "boolean"
+  ) {
+    throw new Error(
+      "features.pruneUnusedSchemas and features.inlinePrimitiveAliases must be booleans.",
+    );
   }
 }
 
